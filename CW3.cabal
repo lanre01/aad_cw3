@@ -59,8 +59,8 @@ library
 
     -- Modules exported by the library.
     exposed-modules:  
-    MyLib ,
-    STree
+        MyLib,
+        SuffixTree
 
     -- Modules included in this library but not exported.
     -- other-modules:
@@ -69,7 +69,10 @@ library
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
-    build-depends:    base ^>=4.18.3.0
+    build-depends:    
+        base ^>=4.18.3.0, 
+        bytestring,
+        containers
 
     -- Directories containing source files.
     hs-source-dirs:   src
@@ -93,7 +96,9 @@ executable CW3
     -- Other library packages from which modules are imported.
     build-depends:
         base ^>=4.18.3.0,
-        CW3
+        CW3,
+        bytestring,
+        containers
 
     -- Directories containing source files.
     hs-source-dirs:   app

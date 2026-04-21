@@ -10,6 +10,16 @@
   (major1) == 0 && (major2) <  1 || \
   (major1) == 0 && (major2) == 1 && (minor) <= 0)
 #endif /* MIN_VERSION_CW3 */
+/* package CW3-0.1.0.0 */
+#ifndef VERSION_CW3
+#define VERSION_CW3 "0.1.0.0"
+#endif /* VERSION_CW3 */
+#ifndef MIN_VERSION_CW3
+#define MIN_VERSION_CW3(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  1 || \
+  (major1) == 0 && (major2) == 1 && (minor) <= 0)
+#endif /* MIN_VERSION_CW3 */
 /* package base-4.18.3.0 */
 #ifndef VERSION_base
 #define VERSION_base "4.18.3.0"
@@ -122,11 +132,8 @@
   (major1) == 2 && (major2) == 42 && (minor) <= 0)
 #endif /* MIN_TOOL_VERSION_strip */
 
-#ifndef CURRENT_PACKAGE_KEY
-#define CURRENT_PACKAGE_KEY "CW3-0.1.0.0-inplace"
-#endif /* CURRENT_packageKey */
 #ifndef CURRENT_COMPONENT_ID
-#define CURRENT_COMPONENT_ID "CW3-0.1.0.0-inplace"
+#define CURRENT_COMPONENT_ID "CW3-0.1.0.0-inplace-CW3"
 #endif /* CURRENT_COMPONENT_ID */
 #ifndef CURRENT_PACKAGE_VERSION
 #define CURRENT_PACKAGE_VERSION "0.1.0.0"
