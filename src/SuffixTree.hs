@@ -1,11 +1,18 @@
-module SuffixTree where 
+module SuffixTree (
+    STree (..),
+    Edge (..),
+    Node (..),
+    containsString,
+    sTree
+)  where 
 
-import qualified Data.ByteString as ByteString 
-import qualified Data.IntMap as IMap 
+
+import qualified Data.ByteString as B 
+import qualified Data.IntMap.Strict as IMap 
 import           Data.Word (Word8)
 import           Data.List (foldl')
 
-type InputText   = ByteString.ByteString
+type InputText   = B.ByteString
 type NodeId = Int
 
 
@@ -30,8 +37,9 @@ data STree = STree
 initSTree :: InputText -> STree 
 initSTree input = STree {text = input, nodes = nodes', rootId = rootIdx, bottomId = rootIdx + 1}
            where 
-           rootIdx = ByteString.length input 
+           rootIdx = B.length input 
            nodes'  = initNodes rootIdx 
+
 emptyNode :: Node 
 emptyNode = Node {suffixLink = Nothing, children = IMap.empty}
 
@@ -48,15 +56,13 @@ sTree :: InputText -> STree
 sTree input = 
     let initialSTree = initSTree input
         s = rootId initialSTree
-        lastIdx = ByteString.length input - 1
-        (finalStTree, _) = foldl' someFunc (initialSTree, (s, 0)) [0..lastIdx] 
+        lastIdx = B.length input - 1
+        (finalStTree, _) = foldl' extendAtIndex (initialSTree, (s, 0)) [0..lastIdx] 
     in finalStTree
 
--- will do two things 
--- update 
--- canonize
-someFunc :: (STree, (NodeId, Int)) -> Int -> (STree, (NodeId, Int))
-someFunc (tree, (s, k)) i =
+
+extendAtIndex :: (STree, (NodeId, Int)) -> Int -> (STree, (NodeId, Int))
+extendAtIndex (tree, (s, k)) i =
     let (tree', (s', k')) = update tree (s, k) i
         activePoint = canonize tree' s' (k', i) i
     in (tree', activePoint)
@@ -64,7 +70,7 @@ someFunc (tree, (s, k)) i =
 update :: STree -> (NodeId, Int) -> Int -> (STree, (NodeId, Int))
 update tree (s, k) maxIdx = finish finalTree finalOldr finalS finalK
   where
-    currentChar = ByteString.index (text tree) maxIdx
+    currentChar = B.index (text tree) maxIdx
     (endPoint, r, tree') = testAndSplit tree s (k, maxIdx - 1) currentChar maxIdx
     (finalTree, finalOldr, finalS, finalK) = loop tree' (rootId tree') s k endPoint r
 
@@ -120,14 +126,14 @@ testAndSplit tree s (k, p) t maxIdx
         let edge = lookupTransition tree s k maxIdx
             k' = start edge
             splitEnd = k' + p - k
-            nextChar = ByteString.index (text tree) (splitEnd + 1)
+            nextChar = B.index (text tree) (splitEnd + 1)
         in if t == nextChar
               then (True, s, tree)
               else
                   let (treeWithSplit, r) = newNode tree
                       prefixEdge = Edge {start = k', end = Just splitEnd, target = r}
                       suffixEdge = Edge {start = splitEnd + 1, end = end edge, target = target edge}
-                      tree1 = setTransition treeWithSplit s (ByteString.index (text tree) k') prefixEdge
+                      tree1 = setTransition treeWithSplit s (B.index (text tree) k') prefixEdge
                       tree2 = setTransition tree1 r nextChar suffixEdge
                   in (False, r, tree2)
     | hasTransition tree s t = (True, s, tree)
@@ -144,7 +150,7 @@ lookupTransition tree s k _ =
                 Nothing   -> error "Edge not present, weird"
                 Just edge -> edge
   where
-    key = fromIntegral $ ByteString.index (text tree) k
+    key = fromIntegral $ B.index (text tree) k
 
 hasTransition :: STree -> NodeId -> Word8 -> Bool
 hasTransition tree s _
@@ -187,16 +193,16 @@ addLeaf :: STree -> NodeId -> Int -> (STree, NodeId)
 addLeaf tree parent startIdx =
     let (tree', leafId) = newNode tree
         edge = Edge {start = startIdx, end = Nothing, target = leafId}
-        firstChar = ByteString.index (text tree) startIdx
+        firstChar = B.index (text tree) startIdx
     in (setTransition tree' parent firstChar edge, leafId)
 
 containsString :: STree -> InputText -> Bool
 containsString _ patternText
-    | ByteString.null patternText = True
+    | B.null patternText = True
 containsString tree patternText = goNode (rootId tree) 0
   where
-    patternLen = ByteString.length patternText
-    textLen = ByteString.length (text tree)
+    patternLen = B.length patternText
+    textLen = B.length (text tree)
 
     goNode currentNode patternIdx
         | patternIdx >= patternLen = True
@@ -204,7 +210,7 @@ containsString tree patternText = goNode (rootId tree) 0
             case IMap.lookup currentNode (nodes tree) of
                 Nothing -> False
                 Just current ->
-                    let key = fromIntegral $ ByteString.index patternText patternIdx
+                    let key = fromIntegral $ B.index patternText patternIdx
                     in case IMap.lookup key (children current) of
                         Nothing -> False
                         Just edge -> goEdge edge patternIdx (start edge)
@@ -213,7 +219,7 @@ containsString tree patternText = goNode (rootId tree) 0
         | patternIdx >= patternLen = True
         | textIdx > edgeStop edge = goNode (target edge) patternIdx
         | textIdx >= textLen = False
-        | ByteString.index patternText patternIdx == ByteString.index (text tree) textIdx =
+        | B.index patternText patternIdx == B.index (text tree) textIdx =
             goEdge edge (patternIdx + 1) (textIdx + 1)
         | otherwise = False
 
