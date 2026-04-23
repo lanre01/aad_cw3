@@ -1,9 +1,9 @@
 module SuffixTree2 (
-    STree2 (..),
-    Edge2 (..),
-    Node2 (..),
-    containsString2,
-    sTree2
+    STree (..),
+    Edge (..),
+    Node (..),
+    containsString,
+    sTree
 ) where
 
 import           Control.Monad.ST (ST, runST)
@@ -15,28 +15,28 @@ import           Data.Word (Word8)
 type InputText = B.ByteString
 type NodeId = Int
 
-data Edge2 = Edge2
-  { start2  :: !Int
-  , end2    :: !(Maybe Int)
-  , target2 :: !NodeId
+data Edge = Edge
+  { start  :: !Int
+  , end    :: !(Maybe Int)
+  , target :: !NodeId
   } deriving Show
 
-data Node2 = Node2
-  { suffixLink2 :: !(Maybe NodeId)
-  , children2   :: !(IMap.IntMap Edge2)
+data Node = Node
+  { suffixLink :: !(Maybe NodeId)
+  , children   :: !(IMap.IntMap Edge)
   } deriving Show
 
-data STree2 = STree2
-  { text2     :: !InputText
-  , nodes2    :: !(IMap.IntMap Node2)
-  , rootId2   :: !NodeId
-  , bottomId2 :: !NodeId
+data STree = STree
+  { text     :: !InputText
+  , nodes    :: !(IMap.IntMap Node)
+  , rootId   :: !NodeId
+  , bottomId :: !NodeId
   } deriving Show
 
 -- Mutable nodes used only during construction
 data MNode2 s = MNode2
   { suffixLinkRef2 :: !(STRef s (Maybe NodeId))
-  , childrenRef2   :: !(STRef s (IMap.IntMap Edge2))
+  , childrenRef2   :: !(STRef s (IMap.IntMap Edge))
   }
 
 data MTree2 s = MTree2
@@ -55,8 +55,8 @@ data BuildState s = BuildState
 
 type Builder s a = BuildState s -> ST s (a, BuildState s)
 
-sTree2 :: InputText -> STree2
-sTree2 input = runST $ do
+sTree :: InputText -> STree
+sTree input = runST $ do
     st0 <- initBuildState2 input
     let lastIdx = B.length input - 1
 
@@ -112,24 +112,24 @@ initBuildState2 input = do
         , bsActiveK2 = 0
         }
 
-freezeTree2 :: MTree2 s -> ST s STree2
+freezeTree2 :: MTree2 s -> ST s STree
 freezeTree2 mt = do
     m <- readSTRef (mNodes2 mt)
     frozen <- traverse freezeNode2 m
-    pure STree2
-        { text2 = mText2 mt
-        , nodes2 = frozen
-        , rootId2 = mRootId2 mt
-        , bottomId2 = mBottomId2 mt
+    pure STree
+        { text = mText2 mt
+        , nodes = frozen
+        , rootId = mRootId2 mt
+        , bottomId = mBottomId2 mt
         }
 
-freezeNode2 :: MNode2 s -> ST s Node2
+freezeNode2 :: MNode2 s -> ST s Node
 freezeNode2 mn = do
     sl <- readSTRef (suffixLinkRef2 mn)
     ch <- readSTRef (childrenRef2 mn)
-    pure Node2
-        { suffixLink2 = sl
-        , children2 = ch
+    pure Node
+        { suffixLink = sl
+        , children = ch
         }
 
 lookupNode2 :: MTree2 s -> NodeId -> ST s (MNode2 s)
@@ -169,17 +169,17 @@ nodeSuffixLink2 n st = do
         Just link -> pure (link, st)
         Nothing   -> error "SuffixTree2: missing suffix link"
 
-setTransition2 :: NodeId -> Word8 -> Edge2 -> Builder s ()
+setTransition2 :: NodeId -> Word8 -> Edge -> Builder s ()
 setTransition2 n t edge st = do
     let mt = bsTree2 st
     node <- lookupNode2 mt n
     modifySTRef' (childrenRef2 node) (IMap.insert (fromIntegral t) edge)
     pure ((), st)
 
-lookupTransition2 :: NodeId -> Int -> Int -> Builder s Edge2
+lookupTransition2 :: NodeId -> Int -> Int -> Builder s Edge
 lookupTransition2 s k _ st
     | s == mBottomId2 mt =
-        pure (Edge2 { start2 = k, end2 = Just k, target2 = mRootId2 mt }, st)
+        pure (Edge { start = k, end = Just k, target = mRootId2 mt }, st)
     | otherwise = do
         node <- lookupNode2 mt s
         children <- readSTRef (childrenRef2 node)
@@ -205,7 +205,7 @@ addLeaf2 :: NodeId -> Int -> Builder s NodeId
 addLeaf2 parent startIdx st = do
     let mt = bsTree2 st
     (leafId, st1) <- newNode2 st
-    let edge = Edge2 { start2 = startIdx, end2 = Nothing, target2 = leafId }
+    let edge = Edge { start = startIdx, end = Nothing, target = leafId }
         firstChar = B.index (mText2 mt) startIdx
     ((), st2) <- setTransition2 parent firstChar edge st1
     pure (leafId, st2)
@@ -213,8 +213,8 @@ addLeaf2 parent startIdx st = do
 findTkTransition2 :: NodeId -> Int -> Int -> Builder s (NodeId, Int, Int)
 findTkTransition2 s k maxIdx st = do
     (edge, st1) <- lookupTransition2 s k maxIdx st
-    let edgeEnd = maybe maxIdx id (end2 edge)
-    pure ((target2 edge, start2 edge, edgeEnd), st1)
+    let edgeEnd = maybe maxIdx id (end edge)
+    pure ((target edge, start edge, edgeEnd), st1)
 
 canonize2 :: NodeId -> (Int, Int) -> Int -> Builder s (NodeId, Int)
 canonize2 s (k, i) maxIdx st
@@ -239,15 +239,15 @@ testAndSplit2 s (k, p) t maxIdx st
     | k <= p = do
         let mt = bsTree2 st
         (edge, st1) <- lookupTransition2 s k maxIdx st
-        let k' = start2 edge
+        let k' = start edge
             splitEnd = k' + p - k
             nextChar = B.index (mText2 mt) (splitEnd + 1)
         if t == nextChar
             then pure ((True, s), st1)
             else do
                 (r, st2) <- newNode2 st1
-                let prefixEdge = Edge2 { start2 = k', end2 = Just splitEnd, target2 = r }
-                    suffixEdge = Edge2 { start2 = splitEnd + 1, end2 = end2 edge, target2 = target2 edge }
+                let prefixEdge = Edge { start = k', end = Just splitEnd, target = r }
+                    suffixEdge = Edge { start = splitEnd + 1, end = end edge, target = target edge }
                     firstChar  = B.index (mText2 mt) k'
                 ((), st3) <- setTransition2 s firstChar prefixEdge st2
                 ((), st4) <- setTransition2 r nextChar suffixEdge st3
@@ -289,31 +289,31 @@ update2 s k maxIdx st = do
             ((endPoint', r'), st5) <- testAndSplit2 canonS (canonK, maxIdx - 1) currentChar maxIdx st4
             loop currentChar r canonS canonK endPoint' r' st5
 
-containsString2 :: STree2 -> InputText -> Bool
-containsString2 _ patternText
+containsString :: STree -> InputText -> Bool
+containsString _ patternText
     | B.null patternText = True
-containsString2 tree patternText = goNode (rootId2 tree) 0
+containsString tree patternText = goNode (rootId tree) 0
   where
     patternLen = B.length patternText
-    textLen = B.length (text2 tree)
+    textLen = B.length (text tree)
 
     goNode currentNode patternIdx
         | patternIdx >= patternLen = True
         | otherwise =
-            case IMap.lookup currentNode (nodes2 tree) of
+            case IMap.lookup currentNode (nodes tree) of
                 Nothing -> False
                 Just current ->
                     let key = fromIntegral (B.index patternText patternIdx)
-                    in case IMap.lookup key (children2 current) of
+                    in case IMap.lookup key (children current) of
                         Nothing -> False
-                        Just edge -> goEdge edge patternIdx (start2 edge)
+                        Just edge -> goEdge edge patternIdx (start edge)
 
     goEdge edge patternIdx textIdx
         | patternIdx >= patternLen = True
-        | textIdx > edgeStop edge = goNode (target2 edge) patternIdx
+        | textIdx > edgeStop edge = goNode (target edge) patternIdx
         | textIdx >= textLen = False
-        | B.index patternText patternIdx == B.index (text2 tree) textIdx =
+        | B.index patternText patternIdx == B.index (text tree) textIdx =
             goEdge edge (patternIdx + 1) (textIdx + 1)
         | otherwise = False
 
-    edgeStop edge = maybe (textLen - 1) id (end2 edge)
+    edgeStop edge = maybe (textLen - 1) id (end edge)

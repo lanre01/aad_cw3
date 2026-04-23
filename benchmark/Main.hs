@@ -5,27 +5,38 @@ module Main (main) where
 import           Control.DeepSeq (NFData (..), force)
 import           Criterion.Main (bench, bgroup, defaultMain, env, nf)
 import qualified Data.ByteString as B
-import           SuffixTree (Edge (..), Node (..), STree (..), sTree)
-import           SuffixTree2 (Edge2 (..), Node2 (..), STree2 (..), sTree2)
+import qualified SuffixTree as ST1
+import qualified SuffixTree2 as ST2
+import qualified SuffixTree3 as ST3
 
-instance NFData Edge where
-    rnf (Edge start end target) = rnf start `seq` rnf end `seq` rnf target
+instance NFData ST1.Edge where
+    rnf (ST1.Edge start end target) = rnf start `seq` rnf end `seq` rnf target
 
-instance NFData Node where
-    rnf (Node suffixLink children) = rnf suffixLink `seq` rnf children
+instance NFData ST1.Node where
+    rnf (ST1.Node suffixLink children) = rnf suffixLink `seq` rnf children
 
-instance NFData STree where
-    rnf (STree text nodes rootId bottomId) =
+instance NFData ST1.STree where
+    rnf (ST1.STree text nodes rootId bottomId) =
         rnf text `seq` rnf nodes `seq` rnf rootId `seq` rnf bottomId
 
-instance NFData Edge2 where
-    rnf (Edge2 start end target) = rnf start `seq` rnf end `seq` rnf target
+instance NFData ST2.Edge where
+    rnf (ST2.Edge start end target) = rnf start `seq` rnf end `seq` rnf target
 
-instance NFData Node2 where
-    rnf (Node2 suffixLink children) = rnf suffixLink `seq` rnf children
+instance NFData ST2.Node where
+    rnf (ST2.Node suffixLink children) = rnf suffixLink `seq` rnf children
 
-instance NFData STree2 where
-    rnf (STree2 text nodes rootId bottomId) =
+instance NFData ST2.STree where
+    rnf (ST2.STree text nodes rootId bottomId) =
+        rnf text `seq` rnf nodes `seq` rnf rootId `seq` rnf bottomId
+
+instance NFData ST3.Edge where
+    rnf (ST3.Edge start end target) = rnf start `seq` rnf end `seq` rnf target
+
+instance NFData ST3.Node where
+    rnf (ST3.Node suffixLink children) = rnf suffixLink `seq` rnf children
+
+instance NFData ST3.STree where
+    rnf (ST3.STree text nodes rootId bottomId) =
         rnf text `seq` rnf nodes `seq` rnf rootId `seq` rnf bottomId
 
 main :: IO ()
@@ -34,7 +45,8 @@ main =
         [ env (B.readFile "whale.txt") $ \whale ->
             bgroup
                 "build"
-                [ bench "SuffixTree" $ nf (force . sTree) whale
-                , bench "SuffixTree2" $ nf (force . sTree2) whale
+                [ bench "SuffixTree" $ nf (force . ST1.sTree) whale
+                , bench "SuffixTree2" $ nf (force . ST2.sTree) whale
+                , bench "SuffixTree3" $ nf (force . ST3.sTree) whale
                 ]
         ]
