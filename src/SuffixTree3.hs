@@ -11,15 +11,14 @@ import qualified Data.IntMap.Strict as IMap
 import           Data.Word (Word8)
 import           Control.Monad.State 
 import           Control.Monad
--- (State, runState)
 
 type InputText = B.ByteString
 type NodeId = Int
 
 data Edge = Edge
-  { start  :: !Int
+  { start  :: {-# UNPACK #-} !Int
   , end    :: !(Maybe Int)
-  , target :: !NodeId
+  , target :: {-# UNPACK #-} !Int
   } deriving Show
 
 data Node = Node
@@ -36,9 +35,9 @@ data STree = STree
 
 data BuildState = BuildState
   { buildTree :: !STree
-  , nextId    :: !NodeId
-  , activeS   :: !NodeId
-  , activeK   :: !Int
+  , nextId    :: {-# UNPACK #-} !NodeId
+  , activeS   :: {-# UNPACK #-} !NodeId
+  , activeK   :: {-# UNPACK #-} !Int
   }
 
 emptyNode :: Node 
@@ -71,8 +70,8 @@ initBuildState input =
         , activeK   = 0
         }
 
-getRootId :: BuildS NodeId
-getRootId = gets (rootId . buildTree)
+-- getRootId :: BuildS NodeId
+-- getRootId = gets (rootId . buildTree)
 
 getBottomId :: BuildS NodeId
 getBottomId = gets (bottomId . buildTree)
@@ -86,14 +85,14 @@ getActiveK = gets activeK
 getTree :: BuildS STree 
 getTree = gets buildTree 
 
-setActiveS :: NodeId -> BuildS ()
-setActiveS sid = modify' (\st -> st {activeS = sid})
+-- setActiveS :: NodeId -> BuildS ()
+-- setActiveS sid = modify' (\st -> st {activeS = sid})
 
-setActiveK :: Int -> BuildS ()
-setActiveK k = modify' (\st -> st {activeK = k})
+-- setActiveK :: Int -> BuildS ()
+-- setActiveK k = modify' (\st -> st {activeK = k})
 
-putTree :: STree -> BuildS ()
-putTree t = modify' $ \st -> st { buildTree = t }
+-- putTree :: STree -> BuildS ()
+-- putTree t = modify' $ \st -> st { buildTree = t }
 
 modifyTree :: (STree -> STree) -> BuildS ()
 modifyTree f = modify' $ \st -> st { buildTree = f (buildTree st) }
@@ -180,7 +179,9 @@ canonize s (k, i) maxIdx | i < k     = pure (s, k)
                          | otherwise = do 
                              res <- findTkTransition s k maxIdx
                              go (s, k, i) res 
-                  where go :: (NodeId, Int, Int) -> (NodeId, Int, Int) -> BuildS (NodeId, Int)
+                  where go :: (NodeId, Int, Int) 
+                             -> (NodeId, Int, Int) 
+                             -> BuildS (NodeId, Int)
                         go (s, k, p) (s', k', p') 
                             | p' - k' <= p - k = 
                                     do 

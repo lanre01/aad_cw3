@@ -16,9 +16,9 @@ type InputText = B.ByteString
 type NodeId = Int
 
 data Edge = Edge
-  { start  :: !Int
-  , end    :: !(Maybe Int)
-  , target :: !NodeId
+  { start  :: {-# UNPACK #-} !Int
+  , end    :: {-# UNPACK #-} !(Maybe Int)
+  , target :: {-# UNPACK #-} !NodeId
   } deriving Show
 
 data Node = Node
