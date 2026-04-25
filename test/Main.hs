@@ -6,6 +6,7 @@ import qualified SuffixTree as ST1
 import qualified SuffixTree2 as ST2
 import qualified SuffixTree3 as ST3
 import qualified SuffixTree4 as ST4
+import qualified SuffixTree4 as ST5
 import           System.Exit (exitFailure)
 
 main :: IO ()
@@ -41,11 +42,13 @@ runCase whaleCaseQueries (label, source) = do
         tree2 = ST2.sTree source
         tree3 = ST3.sTree source
         tree4 = ST4.sTree source
+        tree5 = ST5.sTree source
         failures1 = checkQueries label "SuffixTree" source (ST1.containsString tree1) queries
         failures2 = checkQueries label "SuffixTree2" source (ST2.containsString tree2) queries
         failures3 = checkQueries label "SuffixTree3" source (ST3.containsString tree3) queries
-        failures4 = checkQueries label "SuffixTree3" source (ST4.containsString tree4) queries
-    pure (failures1 ++ failures2 ++ failures3 ++ failures4)
+        failures4 = checkQueries label "SuffixTree4" source (ST4.containsString tree4) queries
+        failures5 = checkQueries label "SuffixTree5" source (ST5.containsString tree5) queries
+    pure (failures1 ++ failures2 ++ failures3 ++ failures4 ++ failures5)
 
 checkQueries :: String -> String -> B.ByteString -> (B.ByteString -> Bool) -> [B.ByteString] -> [String]
 checkQueries label implName source containsFn =

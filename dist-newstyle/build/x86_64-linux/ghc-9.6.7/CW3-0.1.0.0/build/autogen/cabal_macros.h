@@ -40,6 +40,16 @@
   (major1) == 0 && (major2) <  6 || \
   (major1) == 0 && (major2) == 6 && (minor) <= 7)
 #endif /* MIN_VERSION_containers */
+/* package hashtables-1.4.2 */
+#ifndef VERSION_hashtables
+#define VERSION_hashtables "1.4.2"
+#endif /* VERSION_hashtables */
+#ifndef MIN_VERSION_hashtables
+#define MIN_VERSION_hashtables(major1,major2,minor) (\
+  (major1) <  1 || \
+  (major1) == 1 && (major2) <  4 || \
+  (major1) == 1 && (major2) == 4 && (minor) <= 2)
+#endif /* MIN_VERSION_hashtables */
 /* package mtl-2.3.1 */
 #ifndef VERSION_mtl
 #define VERSION_mtl "2.3.1"
@@ -50,6 +60,16 @@
   (major1) == 2 && (major2) <  3 || \
   (major1) == 2 && (major2) == 3 && (minor) <= 1)
 #endif /* MIN_VERSION_mtl */
+/* package vector-0.13.2.0 */
+#ifndef VERSION_vector
+#define VERSION_vector "0.13.2.0"
+#endif /* VERSION_vector */
+#ifndef MIN_VERSION_vector
+#define MIN_VERSION_vector(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  13 || \
+  (major1) == 0 && (major2) == 13 && (minor) <= 2)
+#endif /* MIN_VERSION_vector */
 
 /* tool gcc-13 */
 #ifndef TOOL_VERSION_gcc

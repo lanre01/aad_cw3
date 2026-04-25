@@ -9,6 +9,7 @@ import qualified SuffixTree as ST1
 import qualified SuffixTree2 as ST2
 import qualified SuffixTree3 as ST3
 import qualified SuffixTree4 as ST4
+import qualified SuffixTree5 as ST5
 
 instance NFData ST1.Edge where
     rnf (ST1.Edge start end target) = rnf start `seq` rnf end `seq` rnf target
@@ -50,6 +51,16 @@ instance NFData ST4.STree where
     rnf (ST4.STree text nodes rootId bottomId) =
         rnf text `seq` rnf nodes `seq` rnf rootId `seq` rnf bottomId
 
+instance NFData ST5.Edge where
+    rnf (ST5.Edge start end target) = rnf start `seq` end `seq` rnf target
+
+instance NFData ST5.Node where
+    rnf (ST5.Node suffixLink children) = suffixLink `seq` rnf children
+
+instance NFData ST5.STree where
+    rnf (ST5.STree text nodes rootId bottomId) =
+        rnf text `seq` rnf nodes `seq` rnf rootId `seq` rnf bottomId
+
 main :: IO ()
 main =
     defaultMain
@@ -60,5 +71,6 @@ main =
                 , bench "SuffixTree2" $ nf (force . ST2.sTree) whale
                 , bench "SuffixTree3" $ nf (force . ST3.sTree) whale
                 , bench "SuffixTree4" $ nf (force . ST4.sTree) whale
+                , bench "SuffixTree5" $ nf (force . ST5.sTree) whale
                 ]
         ]

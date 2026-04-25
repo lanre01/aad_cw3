@@ -1,12 +1,14 @@
 module Main where
 
 import qualified Data.ByteString as ByteString
+import qualified Data.Vector as V
 import qualified Data.ByteString.Char8 as ByteStringChar8
 import qualified Data.IntMap as IMap
 import qualified SuffixTree as ST1
 import qualified SuffixTree2 as ST2
 import qualified SuffixTree3 as ST3
 import qualified SuffixTree4 as ST4
+import qualified SuffixTree5 as ST5
 
 main :: IO ()
 main = do
@@ -27,10 +29,12 @@ main = do
           Just n -> n
           Nothing -> error "Root node missing"
       tree4 = ST4.sTree whale
-      rootNode4 =
+      rootNode4 = 
         case IMap.lookup (ST4.rootId tree4) (ST4.nodes tree4) of
           Just n -> n
           Nothing -> error "Root node missing"
+      tree5 = ST5.sTree whale
+      rootNode5 = ST5.nodes tree5 V.! (ST5.rootId tree5)
 
   putStrLn "Built SuffixTree for whole whale.txt"
   putStrLn $ "Input bytes: " ++ show (ByteString.length whale)
@@ -92,6 +96,23 @@ main = do
 
   putStrLn ""
   putStrLn "SuffixTree4 substring checks:"
+  mapM_ (printQuery4 whale tree4)
+    [ "Call me Ishmael"
+    , "Loomings"
+    , "whale"
+    , "definitely-not-in-the-book"
+    ]
+  
+  putStrLn ""
+  putStrLn "Built SuffixTree5 for whole whale.txt"
+  putStrLn $ "Input bytes: " ++ show (ByteString.length whale)
+  putStrLn $ "Total nodes (SuffixTree5): " ++ show (V.length (ST5.nodes tree5))
+  putStrLn $ "Root node id (SuffixTree5): " ++ show (ST5.rootId tree5)
+  putStrLn $ "Bottom node id (SuffixTree5): " ++ show (ST5.bottomId tree5)
+  putStrLn $ "Root outgoing edges (SuffixTree5): " ++ show (IMap.size (ST5.children rootNode5))
+
+  putStrLn ""
+  putStrLn "SuffixTree5 substring checks:"
   mapM_ (printQuery4 whale tree4)
     [ "Call me Ishmael"
     , "Loomings"
