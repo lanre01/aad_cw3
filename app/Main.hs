@@ -6,6 +6,7 @@ import qualified Data.IntMap as IMap
 import qualified SuffixTree as ST1
 import qualified SuffixTree2 as ST2
 import qualified SuffixTree3 as ST3
+import qualified SuffixTree4 as ST4
 
 main :: IO ()
 main = do
@@ -23,6 +24,11 @@ main = do
       tree3 = ST3.sTree whale
       rootNode3 =
         case IMap.lookup (ST3.rootId tree3) (ST3.nodes tree3) of
+          Just n -> n
+          Nothing -> error "Root node missing"
+      tree4 = ST4.sTree whale
+      rootNode4 =
+        case IMap.lookup (ST4.rootId tree4) (ST4.nodes tree4) of
           Just n -> n
           Nothing -> error "Root node missing"
 
@@ -76,6 +82,23 @@ main = do
     , "definitely-not-in-the-book"
     ]
 
+  putStrLn ""
+  putStrLn "Built SuffixTree4 for whole whale.txt"
+  putStrLn $ "Input bytes: " ++ show (ByteString.length whale)
+  putStrLn $ "Total nodes (SuffixTree4): " ++ show (IMap.size (ST4.nodes tree4))
+  putStrLn $ "Root node id (SuffixTree4): " ++ show (ST4.rootId tree4)
+  putStrLn $ "Bottom node id (SuffixTree4): " ++ show (ST4.bottomId tree4)
+  putStrLn $ "Root outgoing edges (SuffixTree4): " ++ show (IMap.size (ST4.children rootNode4))
+
+  putStrLn ""
+  putStrLn "SuffixTree4 substring checks:"
+  mapM_ (printQuery4 whale tree4)
+    [ "Call me Ishmael"
+    , "Loomings"
+    , "whale"
+    , "definitely-not-in-the-book"
+    ]
+
 printQuery1 :: ByteString.ByteString -> ST1.STree -> String -> IO ()
 printQuery1 source tree query = do
   let queryBytes = ByteStringChar8.pack query
@@ -106,6 +129,19 @@ printQuery3 :: ByteString.ByteString -> ST3.STree -> String -> IO ()
 printQuery3 source tree query = do
   let queryBytes = ByteStringChar8.pack query
       actual = ST3.containsString tree queryBytes
+      expected = queryBytes `ByteString.isInfixOf` source
+  putStrLn $
+    query
+      ++ " -> "
+      ++ show actual
+      ++ " (expected "
+      ++ show expected
+      ++ ")"
+
+printQuery4 :: ByteString.ByteString -> ST4.STree -> String -> IO ()
+printQuery4 source tree query = do
+  let queryBytes = ByteStringChar8.pack query
+      actual = ST4.containsString tree queryBytes
       expected = queryBytes `ByteString.isInfixOf` source
   putStrLn $
     query

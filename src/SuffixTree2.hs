@@ -17,7 +17,7 @@ type NodeId = Int
 
 data Edge = Edge
   { start  :: {-# UNPACK #-} !Int
-  , end    :: {-# UNPACK #-} !(Maybe Int)
+  , end    :: !(Maybe Int)
   , target :: {-# UNPACK #-} !NodeId
   } deriving Show
 
@@ -29,8 +29,8 @@ data Node = Node
 data STree = STree
   { text     :: !InputText
   , nodes    :: !(IMap.IntMap Node)
-  , rootId   :: !NodeId
-  , bottomId :: !NodeId
+  , rootId   :: {-# UNPACK #-} !NodeId
+  , bottomId :: {-# UNPACK #-} !NodeId
   } deriving Show
 
 -- Mutable nodes used only during construction

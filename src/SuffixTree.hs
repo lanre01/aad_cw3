@@ -17,9 +17,9 @@ type NodeId = Int
 
 
 data Edge = Edge
-  { start  :: !Int
+  { start  :: {-# UNPACK #-} !Int
   , end    :: !(Maybe Int)
-  , target :: !NodeId
+  , target :: {-# UNPACK #-} !NodeId
   }
 
 data Node = Node
@@ -30,8 +30,8 @@ data Node = Node
 data STree = STree
   { text   :: !InputText
   , nodes  :: !(IMap.IntMap Node)
-  , rootId   :: !NodeId
-  , bottomId :: !NodeId
+  , rootId   :: {-# UNPACK #-} !NodeId
+  , bottomId :: {-# UNPACK #-} !NodeId
   }
 
 initSTree :: InputText -> STree 

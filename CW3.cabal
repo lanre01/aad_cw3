@@ -64,7 +64,8 @@ library
         MyLib,
         SuffixTree,
         SuffixTree2,
-        SuffixTree3
+        SuffixTree3,
+        SuffixTree4
 
     -- Modules included in this library but not exported.
     -- other-modules:

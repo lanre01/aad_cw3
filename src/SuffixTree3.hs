@@ -144,7 +144,7 @@ update s k maxIdx = do
                 setSuffixLink oldr currentS
             pure (currentS, currentK)
         | otherwise = do
-            _ <- addLeaf r maxIdx
+            addLeaf r maxIdx
             tree <- getTree
             when (oldr /= rootId tree) $
                 setSuffixLink oldr r
@@ -158,14 +158,13 @@ setSuffixLink n targetId =
     modifyTree $ \tree ->
         tree { nodes = IMap.adjust (\nd -> nd { suffixLink = Just targetId }) n (nodes tree) }
 
-addLeaf :: NodeId -> Int -> BuildS NodeId 
+addLeaf :: NodeId -> Int -> BuildS ()
 addLeaf parent startIdx = do 
     tree <- getTree
     leafId <- newNode
     let edge = Edge { start = startIdx, end = Nothing, target = leafId }
         firstChar = B.index (text tree) startIdx
     setTransition parent firstChar edge 
-    pure leafId 
 
 nodeSuffixLink :: NodeId -> BuildS NodeId 
 nodeSuffixLink nid = do 
@@ -188,8 +187,8 @@ canonize s (k, i) maxIdx | i < k     = pure (s, k)
                                 let k'' = k + p' - k' + 1
                                 if k'' <= p 
                                     then do 
-                                    res <- findTkTransition s' k'' maxIdx 
-                                    go (s', k'', p) res
+                                    tkTrans <- findTkTransition s' k'' maxIdx 
+                                    go (s', k'', p) tkTrans
                                 else pure (s', k'')
                             | otherwise = pure (s, k)
                     
