@@ -4,11 +4,11 @@ import qualified Data.ByteString as B
 import qualified Data.Vector as V
 import qualified Data.ByteString.Char8 as C8
 import qualified Data.IntMap as IMap
-import qualified SuffixTree as ST1
+import qualified SuffixTree1 as ST1
 import qualified SuffixTree2 as ST2
 import qualified SuffixTree3 as ST3
 import qualified SuffixTree4 as ST4
-import qualified SuffixTree5 as ST5
+import qualified SuffixTree as ST5
 import Control.Monad (replicateM)
 import System.Random (randomRIO)
 import Data.Word (Word8)

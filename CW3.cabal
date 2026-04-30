@@ -68,7 +68,7 @@ library
         SuffixTree2,
         SuffixTree3,
         SuffixTree4,
-        SuffixTree5,
+        SuffixTree1,
         SubstringSearch 
 
     -- Modules included in this library but not exported.
