@@ -44,7 +44,9 @@ maintainer:         alongbijalawal2000@gmail.com
 -- copyright:
 build-type:         Simple
 
-data-files:         whale.txt
+data-files:
+    whale.txt
+    benchmark/search-patterns.txt
 
 -- Extra doc files to be distributed with the package, such as a CHANGELOG or a README.
 extra-doc-files:    CHANGELOG.md
@@ -66,7 +68,8 @@ library
         SuffixTree2,
         SuffixTree3,
         SuffixTree4,
-        SuffixTree5
+        SuffixTree5,
+        SubstringSearch 
 
     -- Modules included in this library but not exported.
     -- other-modules:
@@ -108,7 +111,8 @@ executable CW3
         CW3,
         bytestring,
         containers,
-        vector
+        vector,
+        random
 
     -- Directories containing source files.
     hs-source-dirs:   app
@@ -160,4 +164,5 @@ benchmark CW3-bench
         bytestring,
         CW3,
         criterion,
-        deepseq
+        deepseq,
+        random
